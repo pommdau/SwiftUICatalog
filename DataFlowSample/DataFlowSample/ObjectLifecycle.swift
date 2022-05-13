@@ -21,7 +21,7 @@ struct StateObjectCounterView: View {
 }
 
 struct ObservedObjcetCounterView: View {
-    @ObservedObject private var dataSource = DataSource()
+    @ObservedObject var dataSource: DataSource
     var body: some View {
         VStack {
             Button("increment counter") {
@@ -35,6 +35,7 @@ struct ObservedObjcetCounterView: View {
 
 struct SwitchColorView: View {
     @State private var isDanger: Bool = false
+    @StateObject private var dataSource = DataSource()
     var body: some View {
         VStack {
             Button("Change the Color") {
@@ -48,7 +49,7 @@ struct SwitchColorView: View {
                     .frame(width: 200, height: 200)
             }
             StateObjectCounterView()
-            ObservedObjcetCounterView()
+            ObservedObjcetCounterView(dataSource: dataSource)
             Spacer()
         }
     }

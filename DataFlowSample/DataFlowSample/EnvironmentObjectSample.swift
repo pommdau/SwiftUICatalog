@@ -8,7 +8,7 @@
 import SwiftUI
 
 class DataSource: ObservableObject {
-  @Published var counter = 0
+    @Published var counter = 0
 }
 
 struct ParentView: View {
