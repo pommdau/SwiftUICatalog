@@ -9,6 +9,7 @@
 import SwiftUI
 
 struct HomeView: View {
+    // View自体で保持するので`@StateObject'
     @StateObject private var viewModel: HomeViewModel = .init(apiService: APIService())
     @State private var text = ""
     var body: some View {
@@ -34,7 +35,7 @@ struct HomeView: View {
                 .navigationBarTitle("", displayMode: .inline)
                 .navigationBarItems(leading: HStack {
                     TextField("検索キーワードを入力", text: $text, onCommit: {
-                        viewModel.apply(inputs: .onCommit(text: text))
+                        viewModel.apply(inputs: .onCommit(text: text))  // ViewModelにInputs
                     })
                         .textFieldStyle(RoundedBorderTextFieldStyle())
                         .keyboardType(.asciiCapable)

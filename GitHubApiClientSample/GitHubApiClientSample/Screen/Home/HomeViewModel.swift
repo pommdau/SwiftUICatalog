@@ -14,7 +14,7 @@ final class HomeViewModel: ObservableObject {
 
     // MARK: - Inputs
     enum Inputs {
-        case onCommit(text: String)
+        case onCommit(text: String)  // TextFieldで入力操作が終わった
         case tappedCardView(urlString: String)
     }
 
@@ -28,9 +28,10 @@ final class HomeViewModel: ObservableObject {
 
     init(apiService: APIServiceType) {
         self.apiService = apiService
-        bind()
+        bind()  // Subjectをバインドする
     }
-
+    
+    // Inputsの実行
     func apply(inputs: Inputs) {
         switch inputs {
             case .onCommit(let inputText):
@@ -43,12 +44,14 @@ final class HomeViewModel: ObservableObject {
 
     // MARK: - Private
     private let apiService: APIServiceType
-    private let onCommitSubject = PassthroughSubject<String, Never>()
+    private let onCommitSubject = PassthroughSubject<String, Never>()  // Subscriberのオブジェクト？
     private let responseSubject = PassthroughSubject<SearchRepositoryResponse, Never>()
     private let errorSubject = PassthroughSubject<APIServiceError, Never>()
     private var cancellables: [AnyCancellable] = []
 
     private func bind() {
+        
+        // APIリクエストの実行
         let responseSubscriber = onCommitSubject
             .flatMap { [apiService] (query) in
                 apiService.request(with: SearchRepositoryRequest(query: query))
@@ -67,7 +70,7 @@ final class HomeViewModel: ObservableObject {
 
         let loadingStartSubscriber = onCommitSubject
             .map { _ in true }
-            .assign(to: \.isLoading, on: self)
+            .assign(to: \.isLoading, on: self)  // 自信のisLoadingをtrueに更新
 
         let errorSubscriber = errorSubject
             .sink(receiveValue: { [weak self] (error) in
