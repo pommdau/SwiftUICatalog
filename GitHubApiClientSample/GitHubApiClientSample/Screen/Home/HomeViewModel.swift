@@ -44,7 +44,7 @@ final class HomeViewModel: ObservableObject {
 
     // MARK: - Private
     private let apiService: APIServiceType
-    private let onCommitSubject = PassthroughSubject<String, Never>()  // Subscriberのオブジェクト？
+    private let onCommitSubject = PassthroughSubject<String, Never>()  // sendメソッドを持つPublisher
     private let responseSubject = PassthroughSubject<SearchRepositoryResponse, Never>()
     private let errorSubject = PassthroughSubject<APIServiceError, Never>()
     private var cancellables: [AnyCancellable] = []
@@ -70,7 +70,7 @@ final class HomeViewModel: ObservableObject {
 
         let loadingStartSubscriber = onCommitSubject
             .map { _ in true }
-            .assign(to: \.isLoading, on: self)  // 自信のisLoadingをtrueに更新
+            .assign(to: \.isLoading, on: self)  // self.isLoadingをtrueに更新
 
         let errorSubscriber = errorSubject
             .sink(receiveValue: { [weak self] (error) in

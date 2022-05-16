@@ -15,7 +15,8 @@ extension Notification.Name {
     static let News = Notification.Name("com.combine_introduce.news")
 }
 
-/*
+print("\n*** 1 ***")
+
 class NewsSubscriber: Subscriber {
     typealias Input = Notification  // NotificationCenter.Publisherと型を合わせる
     typealias Failure = Never  // NotificationCenter.Publisherと型を合わせる
@@ -24,9 +25,12 @@ class NewsSubscriber: Subscriber {
 
     init(notificationPublisher: NotificationCenter.Publisher) {
         self.publisher = notificationPublisher
-        self.publisher.subscribe(self)
+        self.publisher.subscribe(self)  // 1. PublisherにSubscriberが登録
     }
-
+    
+    // MARK: - Subscriber Protocol Methods
+    
+    // 2. PublisherがSubsriptionを送る
     // publisherがsubscriberを登録したときに呼ばれる
     func receive(subscription: Subscription) {
         print("🐱: receive(subscription: Subscription)")
@@ -35,6 +39,7 @@ class NewsSubscriber: Subscriber {
         subscription.request(.unlimited)
     }
     
+    // 3. SubscriberがSubscriptionを通してN個の値をリクエスト
     // publisherから要素が送られてくる。配信個数を要求する
     func receive(_ input: Notification) -> Subscribers.Demand {
         print("🐱: func receive(_ input: Notification) -> Subscribers.Demand {")
@@ -42,7 +47,8 @@ class NewsSubscriber: Subscriber {
         print(news?.info ?? "")
         return .unlimited  // 配信個数に制限なし
     }
-
+    
+    // 4. Publisherが完了イベントを送る
     // 配信が完了したときに呼ばれる
     func receive(completion: Subscribers.Completion<Never>) {
         print("🐱: func receive(completion: Subscribers.Completion<Never>) {")
@@ -55,9 +61,9 @@ do {
     let _ = NewsSubscriber(notificationPublisher: notificationPublisher)  // NewsSubscriberのreceiveが呼ばれる
     notificationPublisher.center.post(name: .News, object: News(info: "you got a news!"))
 }
-*/
 
-/*
+print("\n*** 2 ***")
+
 do {
     // map: Publisherから配信される値を全て変換し、新しいPublisherを作る
     // sink: Subscriberを作成し、Publisherから配信されるイベントをクロージャベールでハンドリングできるOperator
@@ -72,7 +78,8 @@ do {
     })
     NotificationCenter.default.post(name: .News, object: News(info: "it's rain today"))
 }
-*/
+
+print("\n*** 3 ***")
 
 do {
     // assign: Subscriberを作成するOperator
@@ -83,8 +90,9 @@ do {
         .map { (notification) -> String in
             print("map")
             return (notification.object as? News)?.info ?? ""
-    }.assign(to: \.info, on: news)  // KeyPath指定
+        }
+        .assign(to: \.info, on: news)  // KeyPath指定
+    
     NotificationCenter.default.post(name: .News, object: News(info: "it's rain sunny"))
     print(news.info)
 }
-
