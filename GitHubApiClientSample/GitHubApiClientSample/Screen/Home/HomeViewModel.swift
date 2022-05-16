@@ -45,7 +45,6 @@ final class HomeViewModel: ObservableObject {
     // MARK: - Private
     private let apiService: APIServiceType
     private let onCommitSubject = PassthroughSubject<String, Never>()  // sendメソッドを持つPublisher
-    private let responseSubject = PassthroughSubject<SearchRepositoryResponse, Never>()
     private let errorSubject = PassthroughSubject<APIServiceError, Never>()
     private var cancellables: [AnyCancellable] = []
 
@@ -54,13 +53,19 @@ final class HomeViewModel: ObservableObject {
         // APIリクエストの実行
         let responseSubscriber = onCommitSubject
             .flatMap { [apiService] (query) in
+                
+                // APIの呼びだし
+                // catch: エラーが起こった場合にストリームの型変換をして新しいPublisherとしてイベントを流すOperator
+                
                 apiService.request(with: SearchRepositoryRequest(query: query))
                     .catch { [weak self] error -> Empty<SearchRepositoryResponse, Never> in
-                        self?.errorSubject.send(error)
-                        return .init()
+                        self?.errorSubject.send(error)  // エラーハンドリング
+                        return .init()  // := Empty<SearchRepositoryResponse, Never>.init()
                     }
             }
-            .map{ $0.items }
+            .map{ response in
+                response.items
+            }
             .sink(receiveValue: { [weak self] (repositories) in
                 guard let self = self else { return }
                 self.cardViewInputs = self.convertInput(repositories: repositories)
