@@ -76,6 +76,7 @@ struct DrawingView: View {
 
 extension DrawingView {
     func capture(rect: CGRect) -> UIImage {
+        // View(SwiftUI) -> UIWindow ->UIImage
         let window = UIWindow(frame: CGRect(origin: rect.origin,
                                             size: rect.size))
         let hosting = UIHostingController(rootView: self.body)
