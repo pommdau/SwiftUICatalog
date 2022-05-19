@@ -50,4 +50,29 @@ final class APIService: APIServiceType {
             .receive(on: RunLoop.main)  // ストリームを会陰スレッドに流れるように変換
             .eraseToAnyPublisher()
     }
+    
+    // Concurrencyで書くと以下の通り？(動作未検証)
+    
+    func request<Request>(with request: Request) async throws -> Request.Response where Request: APIRequestType {
+        guard let pathURL = URL(string: request.path, relativeTo: URL(string: baseURLString)) else {
+            throw APIServiceError.invalidURL
+        }
+        
+        var urlComponents = URLComponents(url: pathURL, resolvingAgainstBaseURL: true)!
+        urlComponents.queryItems = request.queryItems
+        var request = URLRequest(url: urlComponents.url!)
+        request.addValue("application/json", forHTTPHeaderField: "Accept")
+        
+        let decorder = JSONDecoder()
+        decorder.keyDecodingStrategy = .convertFromSnakeCase
+        
+        let (data, response) = try await URLSession.shared.data(for: request)
+        guard (response as? HTTPURLResponse)?.statusCode == 200 else { throw APIServiceError.responseError }
+        do {
+            return try decorder.decode(Request.Response.self, from: data)
+        } catch {
+            throw APIServiceError.parseError(error)
+        }
+    }
+    
 }
